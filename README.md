@@ -42,7 +42,7 @@ The JSON file **must** follow the following format:
 4. MeetDuration *(key)*
    - Value as an `int` representing the time of the meetings.
 
-* `time format` is a string following in the form of HH:MM[PM/AM], if [PM/AM] is not specified the program assumes the time is in 24h format.
+* `time format` is a string in the form of HH:MM[PM/AM], if [PM/AM] is not specified the program assumes the time is in 24h format.
 
 The program can take 1 argument:
 1. `-i <filename>`: Name of the input file at `input/` folder. If no arguments given, the default filename to look is `input.json`.
