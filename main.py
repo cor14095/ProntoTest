@@ -122,7 +122,7 @@ def main(argv):
     try:
         data = open_json(inputfile)     # Data from json.
     except FileNotFoundError:
-        global_error_stack.append('No file named '{}' found.'.
+        global_error_stack.append('No file named `{}` found.'.
             format(inputfile))
         return 0
     try:
