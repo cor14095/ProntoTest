@@ -35,10 +35,10 @@ The JSON file **must** follow the following format:
    - end *(key)*
      - Value in `time format`
 3. Lunch *(dictionary)*
-  - start *(key)*
-    - Value in `time format`
-  - end *(key)*
-    - Value in `time format`
+   - start *(key)*
+     - Value in `time format`
+   - end *(key)*
+     - Value in `time format`
 4. MeetDuration *(key)*
    - Value as an `int` representing the time of the meetings.
 
