@@ -1,5 +1,6 @@
 import json
-import sys, getopt
+import sys
+import getopt
 
 global_error_stack = []
 
