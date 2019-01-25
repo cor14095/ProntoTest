@@ -1,5 +1,5 @@
 import json
-from pprint import pprint
+import sys, getopt
 
 global_error_stack = []
 
@@ -8,9 +8,9 @@ def openJSON(fileName):
         data = json.load(data_file)
     return data
 
-def writeJSON(data):
+def writeJSON(data, filename):
     # Print the file as a JSON.
-    with open('output/data.json', 'w') as outfile:
+    with open('output/output_' + filename, 'w') as outfile:
         json.dump(data, outfile, ensure_ascii=False
             , sort_keys=False, indent=4, separators=(',', ': '))
 
@@ -18,7 +18,8 @@ def formatTimes(stringTime):
     # Function input is a string with a format like this 'HH:MM[PM/AM]'.
     # Returns Time in 24h format wo PM or AM.
     result = 0.0
-    timeSplited = stringTime.split(':');
+    stringTime = stringTime.upper()
+    timeSplited = stringTime.split(':')
 
     # Check for correct format.
     if (len(timeSplited) != 2):
@@ -68,22 +69,81 @@ def isEmployeeAvailable(key, employee):
 
     return available
 
-def main():
+def printResults(data, filename):
+    # This function prints the results in a nice way.
+    # To a file as JSON and as a text report.
+
+    # Print the file as a JSON.
+    writeJSON(data, filename)
+
+    # Generate a nice string:
+    text = "Employees availability:\n"
+    for time in data:
+        subText = "The employees: "
+        for employee in data[time]:
+            subText += "\n- " + employee
+        subText += "\nAre available at:\t" + time +".\n\n"
+        text += subText
+    print (text)
+
+    # Write a .txt file with the data.
+    with open("output/output_" + filename.split('.')[0] + ".txt", 'a') as out:
+        out.write(text + '\n')
+
+
+def main(argv):
+    inputfile = 'input.json'
+    try:
+        opts, args = getopt.getopt(argv,"hi:o:",["ifile="])
+    except getopt.GetoptError:
+        print ('main.py -i <inputfile>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':   # -h help command
+            print ('test.py -i <inputfile> \tFor an specific file name.')
+            print ('test.py \tProgram will look for input.json file.')
+            sys.exit()
+        elif opt in ("-i", "--ifile"):
+            inputfile = arg
+
     # Variables
-    data = openJSON("schedule.json")     # Data from json.
-    staff = data["staff"]   # Staff schedulesself.
+    try:
+        data = openJSON(inputfile)     # Data from json.
+    except FileNotFoundError:
+        global_error_stack.append("No file named 'input.json' found.")
+        return 0
+    try:
+        staff = data["staff"]   # Staff schedulesself.
+    except KeyError:
+        global_error_stack.append("'staff' key doesn't exist!" +
+            " Check README file to see the format.")
+        return 0
     availableTimes = {}
 
     # Build a schedule dictionary and fill it with the data.
     # Initialize some important values.
-    startTime = formatTimes(data["WorkHours"]["start"])
-    endTime = formatTimes(data["WorkHours"]["end"])
-    lunchStart = formatTimes(data["Lunch"]["start"])
-    lunchEnd = formatTimes(data["Lunch"]["end"])
+    try:
+        startTime = formatTimes(data["WorkHours"]["start"])
+        endTime = formatTimes(data["WorkHours"]["end"])
+        lunchStart = formatTimes(data["Lunch"]["start"])
+        lunchEnd = formatTimes(data["Lunch"]["end"])
+    except KeyError:
+        global_error_stack.append("One of the main keys or values doesn't" +
+            " exist, check README file to see the format.")
+        return 0
+
     try:
         meetDuration = (float(data["MeetDuration"]) * 100.0) / 6000.0
     except ValueError:
-        meetDuration = -1;
+        global_error_stack.append(
+            "Meet duration must be in minutes and in the range of 0 to 60."
+            + "Given value is: -1"
+        )
+        meetDuration = -1
+    except KeyError:
+        global_error_stack.append("'MeetDuration' key doesn't exist!" +
+            " Check README file to see the format.")
+        return 0
 
     # Check that all this values are correct.
     if (startTime < 0 or endTime < 0 or lunchStart < 0 or lunchEnd < 0):
@@ -115,11 +175,11 @@ def main():
                 availableTimes[keyTime] = availableEmployees
             time += meetDuration
 
-        # Print the file as a JSON.
-        writeJSON(availableTimes)
+        # Print result
+        printResults(availableTimes, inputfile)
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
     # Check for errors.
     if (len(global_error_stack) > 0):
         print ("Errors found durring execution:")
