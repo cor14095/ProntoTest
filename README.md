@@ -23,7 +23,7 @@
 - Result should be in a format that can be used as an input for another program
 
 ## The Solution:
-Program was develop with Python 3.6.3, it takes as an input a JSON file located at `input/`.
+Program was developed with Python 3.6.3, it takes as an input a JSON file located at `input/`.
 The JSON file **must** follow the following format:
 1. staff *(dictionary)*
    - Employee name *(key)*
