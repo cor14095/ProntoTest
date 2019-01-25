@@ -4,18 +4,18 @@ import getopt
 
 global_error_stack = []
 
-def OpenJSON(fileName):
+def open_json(fileName):
     with open('input/' + fileName) as data_file:
         data = json.load(data_file)
     return data
 
-def WriteJSON(data, filename):
+def write_json(data, filename):
     # Print the file as a JSON.
     with open('output/output_' + filename, 'w') as outfile:
         json.dump(data, outfile, ensure_ascii=False
             , sort_keys=False, indent=4, separators=(',', ': '))
 
-def FormatTime(stringTime):
+def format_time(stringTime):
     # Function input is a string with a format like this 'HH:MM[PM/AM]'.
     # Returns Time in 24h format wo PM or AM.
     result = 0.0
@@ -25,7 +25,7 @@ def FormatTime(stringTime):
     # Check for correct format.
     if (len(timeSplited) != 2):
         # Format is wrong
-        global_error_stack.append('Wrong format for: FormatTime({})'.
+        global_error_stack.append('Wrong format for: format_time({})'.
             format(stringTime))
         result = -1.0
         return result
@@ -38,7 +38,7 @@ def FormatTime(stringTime):
             hours = 12.0 if hours == 24.0 else hours
             minutes = float(timeSplited[1][:2])
         except ValueError:
-            global_error_stack.append('Wrong value for: FormatTime({})'.
+            global_error_stack.append('Wrong value for: format_time({})'.
                 format(stringTime))
             hours = -1.0
             minutes = -1.0
@@ -49,13 +49,13 @@ def FormatTime(stringTime):
 
         # Check if time makes sense
         if (result < 0.0 or result > 24.0):
-            global_error_stack.append('Wrong value for: FormatTime({})'.
+            global_error_stack.append('Wrong value for: format_time({})'.
                 format(stringTime))
             result = -1.0
         return result
 
-def DeformatTime(floatTime):
-    # This function converts output of FormatTime() to original.
+def deformat_time(floatTime):
+    # This function converts output of format_time() to original.
     result = ''
     timeSplited = str(floatTime).split('.');
 
@@ -71,17 +71,17 @@ def DeformatTime(floatTime):
 
     return str(result)
 
-def IsEmployeeAvailable(key, employee):
+def is_employee_available(key, employee):
     # This function check if the employee is available at that time.
     available = False if (key in employee) else True
     return available
 
-def PrintResults(data, filename):
+def print_results(data, filename):
     # This function prints the results in a pretty way.
     # To a file as JSON and as a text report.
 
     # Print the file as a JSON.
-    WriteJSON(data, filename)
+    write_json(data, filename)
 
     # Generate a nice string:
     text = "Employees availability:\n"
@@ -120,7 +120,7 @@ def main(argv):
 
     # Variables
     try:
-        data = OpenJSON(inputfile)     # Data from json.
+        data = open_json(inputfile)     # Data from json.
     except FileNotFoundError:
         global_error_stack.append('No file named '{}' found.'.
             format(inputfile))
@@ -136,10 +136,10 @@ def main(argv):
     # Build a schedule dictionary and fill it with the data.
     # Initialize some important values.
     try:
-        startTime = FormatTime(data['WorkHours']['start'])
-        endTime = FormatTime(data['WorkHours']['end'])
-        lunchStart = FormatTime(data['Lunch']['start'])
-        lunchEnd = FormatTime(data['Lunch']['end'])
+        startTime = format_time(data['WorkHours']['start'])
+        endTime = format_time(data['WorkHours']['end'])
+        lunchStart = format_time(data['Lunch']['start'])
+        lunchEnd = format_time(data['Lunch']['end'])
     except KeyError:
         global_error_stack.append('One of the main keys or values doesn`t'
             + ' exist, check README file to see the format.')
@@ -176,11 +176,11 @@ def main(argv):
         time = startTime
         while (time <= endTime):
             # Build the dictionary empty.
-            keyTime = DeformatTime(time)
+            keyTime = deformat_time(time)
             availableEmployees = [
                 employee
                 for employee in data['staff']
-                if (IsEmployeeAvailable(keyTime, data['staff'][employee]))
+                if (is_employee_available(keyTime, data['staff'][employee]))
             ]
             if ((time < lunchStart or time > lunchEnd) and
                 (len(availableEmployees) > 2)):
@@ -189,7 +189,7 @@ def main(argv):
             time += meetDuration
 
         # Print result
-        PrintResults(availableTimes, inputfile)
+        print_results(availableTimes, inputfile)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
