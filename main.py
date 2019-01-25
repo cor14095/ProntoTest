@@ -25,7 +25,7 @@ def FormatTime(stringTime):
     # Check for correct format.
     if (len(timeSplited) != 2):
         # Format is wrong
-        global_error_stack.append("Wrong format for: FormatTime({})".
+        global_error_stack.append('Wrong format for: FormatTime({})'.
             format(stringTime))
         result = -1.0
         return result
@@ -33,12 +33,12 @@ def FormatTime(stringTime):
         timeSuffix = timeSplited[1][-2:]
         # If no time sufix provided it's assumed to be 24hrs format.
         try:
-            hours = ((float(timeSplited[0]) + 12) if timeSuffix == "PM"
+            hours = ((float(timeSplited[0]) + 12) if timeSuffix == 'PM'
                 else float(timeSplited[0]))
             hours = 12.0 if hours == 24.0 else hours
             minutes = float(timeSplited[1][:2])
         except ValueError:
-            global_error_stack.append("Wrong value for: FormatTime({})".
+            global_error_stack.append('Wrong value for: FormatTime({})'.
                 format(stringTime))
             hours = -1.0
             minutes = -1.0
@@ -49,14 +49,14 @@ def FormatTime(stringTime):
 
         # Check if time makes sense
         if (result < 0.0 or result > 24.0):
-            global_error_stack.append("Wrong value for: FormatTime({})".
+            global_error_stack.append('Wrong value for: FormatTime({})'.
                 format(stringTime))
             result = -1.0
         return result
 
 def DeformatTime(floatTime):
     # This function converts output of FormatTime() to original.
-    result = ""
+    result = ''
     timeSplited = str(floatTime).split('.');
 
     timeSuffix = ('PM' if float(timeSplited[0]) > 11
@@ -88,8 +88,8 @@ def PrintResults(data, filename):
     for time in data:
         subText = "The employees: "
         for employee in data[time]:
-            subText += "\n- " + employee
-        subText += "\nAre available at:\t" + time +".\n\n"
+            subText += '\n- ' + employee
+        subText += '\nAre available at:\t{}.\n\n'.format(time)
         text += subText
     print (text)
 
@@ -98,9 +98,9 @@ def PrintResults(data, filename):
         out.write(text + '\n')
 
     print ("Output files printed to:")
-    print ("-> output/" + filename + "\t JSON formated file.")
-    print ("-> output/" + filename.split('.')[0] + ".txt"
-            + "\t text formated file.")
+    print ("-> output/{}\t JSON formated file.".format(filename))
+    print ("-> output/{}.txt\t text formated file.".
+        format(filename.split('.')[0]))
 
 
 def main(argv):
@@ -122,14 +122,14 @@ def main(argv):
     try:
         data = OpenJSON(inputfile)     # Data from json.
     except FileNotFoundError:
-        global_error_stack.append("No file named '{}' found.".
+        global_error_stack.append('No file named '{}' found.'.
             format(inputfile))
         return 0
     try:
         staff = data['staff']   # Staff schedulesself.
     except KeyError:
-        global_error_stack.append("'staff' key doesn't exist!" +
-            " Check README file to see the format.")
+        global_error_stack.append('*staff* key doesn`t exist!'
+            + ' Check README file to see the format.')
         return 0
     availableTimes = {}
 
@@ -141,35 +141,35 @@ def main(argv):
         lunchStart = FormatTime(data['Lunch']['start'])
         lunchEnd = FormatTime(data['Lunch']['end'])
     except KeyError:
-        global_error_stack.append("One of the main keys or values doesn't"
-            + " exist, check README file to see the format.")
+        global_error_stack.append('One of the main keys or values doesn`t'
+            + ' exist, check README file to see the format.')
         return 0
 
     try:
         meetDuration = (float(data['MeetDuration']) * 100.0) / 6000.0
     except ValueError:
         global_error_stack.append(
-            "Meet duration must be in minutes and in the range of 0 to 60."
-            + "Given value is: -1"
+            'Meet duration must be in minutes and in the range of 0 to 60.'
+            + ' Given value is: -1'
         )
         meetDuration = -1
     except KeyError:
-        global_error_stack.append("'MeetDuration' key doesn't exist!"
-            + " Check README file to see the format.")
+        global_error_stack.append('*MeetDuration* key doesn`t exist!'
+            + ' Check README file to see the format.')
         return 0
 
     # Check that all this values are correct.
     if (startTime < 0 or endTime < 0 or lunchStart < 0 or lunchEnd < 0):
-        global_error_stack.append("Wrong value on JSON 'WorkHours' or 'Lunch'.")
+        global_error_stack.append('Wrong value on JSON *WorkHours* or *Lunch*.')
         return 0
     elif (lunchStart > lunchEnd or startTime > endTime):
-        global_error_stack.append("Start times must be lower than end times "
-            + "for WorkHours and Lunch.")
+        global_error_stack.append('Start times must be lower than end times '
+            + 'for WorkHours and Lunch.')
         return 0
     elif (meetDuration < 0 or meetDuration > 60):
-        global_error_stack.append("Meet duration must be in minutes and "
-            + "in the range of 0 to 60.\n"
-            + "Given value is: " + str(meetDuration))
+        global_error_stack.append('Meet duration must be in minutes and '
+            + 'in the range of 0 to 60.\n'
+            + 'Given value is: {}'.format(meetDuration))
         return 0
     else:
         # If all the values are okay then
