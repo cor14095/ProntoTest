@@ -90,6 +90,11 @@ def printResults(data, filename):
     with open("output/output_" + filename.split('.')[0] + ".txt", 'a') as out:
         out.write(text + '\n')
 
+    print ("Output files printed to:")
+    print ("-> output/" + filename + "\t JSON formated file.")
+    print ("-> output/" + filename.split('.')[0] + ".txt" +
+        "\t text formated file.")
+
 
 def main(argv):
     inputfile = 'input.json'
